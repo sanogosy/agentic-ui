@@ -72,7 +72,7 @@ pipeline {
                         configName: 'Ansible_Controller',
                         transfers: [
                             sshTransfer(
-                                execCommand: "ansible-playbook /opt/playbooks/deploy-angular.yaml -i /opt/playbooks/hosts",
+                                execCommand: "ansible-playbook /opt/playbooks/download-and-deploy-angular.yaml -i /opt/playbooks/hosts",
                                 execTimeout: 120000
                             )
                         ]
