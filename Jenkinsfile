@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs "node18"
+    }
+
     environment {
         APP_NAME = "AI-AGENTIC-Angular"
         BUILD_DIR = "dist/ai-agentic"
@@ -19,20 +23,16 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                withNodeJS('node18') {
-                    sh '''
-                        npm install -g @angular/cli
-                        npm install
-                    '''
-                }
+                sh '''
+                    npm install -g @angular/cli
+                    npm install
+                '''
             }
         }
 
         stage('Build Angular') {
             steps {
-                withNodeJS('node18') {
-                    sh 'ng build --configuration production'
-                }
+                sh 'ng build --configuration production'
             }
         }
 
