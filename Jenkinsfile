@@ -11,6 +11,10 @@ pipeline {
         ZIP_FILE = "angular-${BUILD_NUMBER}.zip"
         NEXUS_URL = "http://172.20.10.87:8081"
         NEXUS_REPO = "angular-raw"
+
+        # Cache npm + node_modules
+        NPM_CACHE = "/var/lib/jenkins/.npm"
+        NODE_CACHE = "/var/lib/jenkins/node_cache"
     }
 
     stages {
@@ -21,18 +25,36 @@ pipeline {
             }
         }
 
+        stage('Prepare Cache') {
+            steps {
+                sh '''
+                    mkdir -p $NODE_CACHE
+                    mkdir -p node_modules
+
+                    # Copier le cache node_modules dans le workspace
+                    rsync -a $NODE_CACHE/ node_modules/ || true
+                '''
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    npm install -g @angular/cli
-                    npm install
+                    # Activer le cache npm
+                    npm config set cache $NPM_CACHE --global
+
+                    # Installer les dépendances
+                    npm ci
+
+                    # Mettre à jour le cache node_modules
+                    rsync -a node_modules/ $NODE_CACHE/
                 '''
             }
         }
 
         stage('Build Angular') {
             steps {
-                sh 'ng build --configuration production'
+                sh 'npx ng build --configuration production'
             }
         }
 
