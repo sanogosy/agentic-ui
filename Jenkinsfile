@@ -28,6 +28,9 @@ pipeline {
             steps {
                 sh '''
                     mkdir -p $NODE_CACHE
+
+                    # Nettoyer node_modules avant de copier le cache
+                    rm -rf node_modules
                     mkdir -p node_modules
 
                     # Copier le cache node_modules dans le workspace
