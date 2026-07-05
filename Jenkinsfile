@@ -5,15 +5,24 @@ pipeline {
         nodejs "node22"
     }
 
+    options {
+        timeout(time: 20, unit: 'MINUTES')
+        disableConcurrentBuilds()
+        timestamps()
+    }
+
     environment {
-        APP_NAME = "AI-AGENTIC-Angular"
-        BUILD_DIR = "dist/ai-agentic"
-        ZIP_FILE = "angular-${BUILD_NUMBER}.zip"
-        NEXUS_URL = "http://172.20.10.87:8081"
+        APP_NAME   = "AI-AGENTIC-Angular"
+        BUILD_DIR  = "dist/ai-agentic"
+        ZIP_FILE   = "angular-${BUILD_NUMBER}.zip"
+        NEXUS_URL  = "http://172.20.10.87:8081"
         NEXUS_REPO = "angular-raw"
 
-        NPM_CACHE = "/var/lib/jenkins/.npm"
-        NODE_CACHE = "/var/lib/jenkins/node_cache"
+        NPM_CACHE  = "/var/lib/jenkins/.npm"
+
+        // Limite la heap de Node pour éviter que le build ne consomme
+        // toute la RAM disponible d'un coup sur une petite instance.
+        NODE_OPTIONS = "--max-old-space-size=1536"
     }
 
     stages {
@@ -24,39 +33,18 @@ pipeline {
             }
         }
 
-        stage('Prepare Cache') {
-            steps {
-                sh '''
-                    mkdir -p $NODE_CACHE
-
-                    # Nettoyer node_modules avant de copier le cache
-                    rm -rf node_modules
-                    mkdir -p node_modules
-
-                    # Copier le cache node_modules dans le workspace
-                    rsync -a $NODE_CACHE/ node_modules/ || true
-                '''
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 sh '''
-                    # Activer le cache npm
                     npm config set cache $NPM_CACHE --global
-
-                    # Installer les dépendances
-                    npm ci
-
-                    # Mettre à jour le cache node_modules
-                    rsync -a node_modules/ $NODE_CACHE/
+                    npm ci --prefer-offline --no-audit --no-fund
                 '''
             }
         }
 
         stage('Build Angular') {
             steps {
-                sh 'npx ng build --configuration production'
+                sh 'npx ng build --configuration production --source-map=false'
             }
         }
 
@@ -98,6 +86,12 @@ pipeline {
                 echo "Angular build packaged as ${ZIP_FILE}"
                 echo "Uploaded to Nexus repository ${NEXUS_REPO}"
             }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
         }
     }
 }
