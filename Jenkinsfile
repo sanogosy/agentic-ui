@@ -48,8 +48,8 @@ pipeline {
         stage('Package Build') {
             steps {
                 sh """
-                    cd dist
-                    zip -r ${ZIP_FILE} *
+                    cd dist/ai-agentic/browser
+                    zip -r ../../${ZIP_FILE} *
                 """
             }
         }
@@ -93,6 +93,7 @@ pipeline {
     }
 }
 
+
 // pipeline {
 //     agent any
 
@@ -114,9 +115,6 @@ pipeline {
 //         NEXUS_REPO = "angular-raw"
 
 //         NPM_CACHE  = "/var/lib/jenkins/.npm"
-
-//         // Limite la heap de Node pour éviter que le build ne consomme
-//         // toute la RAM disponible d'un coup sur une petite instance.
 //         NODE_OPTIONS = "--max-old-space-size=1536"
 //     }
 
@@ -167,7 +165,7 @@ pipeline {
 //                         configName: 'Ansible_Controller',
 //                         transfers: [
 //                             sshTransfer(
-//                                 execCommand: "ansible-playbook /opt/playbooks/download-and-deploy-angular.yaml -i /opt/playbooks/hosts",
+//                                 execCommand: "BUILD_NUMBER=${BUILD_NUMBER} ansible-playbook /opt/playbooks/download-and-deploy-angular.yaml -i /opt/playbooks/hosts",
 //                                 execTimeout: 120000
 //                             )
 //                         ]
