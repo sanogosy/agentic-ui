@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'node18'
-    }
-
     environment {
         APP_NAME = "AI-AGENTIC-Angular"
         BUILD_DIR = "dist/ai-agentic"
@@ -17,22 +13,26 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/sanogosy/MyLab.git'
+                git branch: 'master', url: 'https://github.com/sanogosy/agentic-ui.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    npm install -g @angular/cli
-                    npm install
-                '''
+                withNodeJS('node18') {
+                    sh '''
+                        npm install -g @angular/cli
+                        npm install
+                    '''
+                }
             }
         }
 
         stage('Build Angular') {
             steps {
-                sh 'ng build --configuration production'
+                withNodeJS('node18') {
+                    sh 'ng build --configuration production'
+                }
             }
         }
 
