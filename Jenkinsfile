@@ -12,7 +12,6 @@ pipeline {
         NEXUS_URL = "http://172.20.10.87:8081"
         NEXUS_REPO = "angular-raw"
 
-        # Cache npm + node_modules
         NPM_CACHE = "/var/lib/jenkins/.npm"
         NODE_CACHE = "/var/lib/jenkins/node_cache"
     }
